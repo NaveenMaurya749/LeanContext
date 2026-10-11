@@ -1,0 +1,358 @@
+\documentclass[10pt, aspectratio=169]{beamer}
+
+%%\usetheme{metropolis}
+\usetheme[progressbar=frametitle]{metropolis}
+\usepackage{appendixnumberbeamer}
+\usepackage{listings}
+\usepackage{proof}
+\usepackage{biblatex}
+\usepackage{xspace}
+\usepackage{tikz-cd}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\newcommand{\U}{\mathcal{U}}
+\newcommand{\deq}{\equiv}
+\newcommand{\Prod}[2]{\prod_{(#1)}{#2}}
+\newcommand{\Sum}[2]{\sum_{(#1)}{#2}}
+\newcommand{\W}[2]{W_{(#1)}{#2}}
+\newcommand{\0}{\mathbf{0}}
+\newcommand{\1}{\mathbf{1}}
+\newcommand{\2}{\mathbf{2}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Id}{\mathsf{Id}}
+\newcommand{\ind}{\mathbf{ind}}
+\newcommand{\refl}{\mathsf{refl}}
+\newcommand{\Sph}{\mathbb{S}}
+\newcommand{\inl}{\mathbf{ind}}
+
+\newtheorem{axiom}{Axiom}
+
+\AtBeginSection[]{
+  \begin{frame}
+    \sectionpage
+  \end{frame}
+}
+
+\addbibresource{references.bib}
+
+\title{Type Theory in a Lean Context}
+\subtitle{An Alternative Foundation to Mathematics}
+\date{October 12, 2026}
+\author{Naveen Maurya, IISc}
+\institute{Feynman Lecture Hall, ICTS}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Foudational Systems} 
+ 
+\subsection{What's wrong with Set Theory?}
+
+\begin{frame}{What is a Foundational System?}
+  Set Theory is not a ``complete" foundation mathematics.
+  \begin{itemize}
+    \item Set theory has a problem about interpreting \emph{types} of mathematical objects.\\
+    For example, $\{\{\}, \{\{\}\}\}$ could mean either $2$ or the ordered pair $(0,0)$.
+    \item Set theory doesn't center the type of organization mathematicians care about. \\
+    For example, definitions of a \emph{group} are closely related
+    but that is not reflected in Set Theory.
+  \end{itemize}
+  %Other problems:
+  %\begin{itemize}
+  %  \item Set theory is not very suitable for \emph{constructive mathematics}.
+  %  \item Hard to verify!!! (by a computer)
+  %\end{itemize}
+\end{frame}
+
+
+\subsection{What is a Foundational System?}
+
+\begin{frame}{What is a Foundational System?}
+    A foundational system is an assumed framework to build on top of. \\
+    \[
+    \begin{tikzcd}
+    ZFC 
+    \end{tikzcd}
+    \]
+\end{frame}
+
+\begin{frame}{What is a Foundational System?}
+  Concretely, a Foundation System consists of
+  \begin{itemize}
+    \item A \textbf{Logical/Deductive system} specifying \emph{rules of inference} that dictate which inferences are
+      allowed from existing context.
+    \item An \textbf{Axiomatic system}, a schematic collection of \emph{axioms}, statements in the language of the deductive system,
+      taken as true by assumption.
+  \end{itemize}
+  %Usually in set-theoretic foundations, the former is \emph{first-order logic} and the latter is \emph{ZF or ZFC Set Theory}.
+  %Type Theory combines these two layers into the same framework.
+\end{frame}
+
+\section{(Martin-L\"of) Type Theory}
+
+\subsection{Types as Mathematical Building Blocks}
+
+\begin{frame}{Types, Terms and Universes}
+  \emph{Types} and \emph{Terms} are primitive objects.
+  \begin{itemize}
+    \item Every term $a$ is of some (unique) type, say $\alpha$. We denote this $a : \alpha$. 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Universes}
+  Type Theory postulates a chain of cumulative universes in the style of Russell:
+  \[
+    \U_0, \U_1, \U_2, \U_3, \ldots
+  \]
+  satisfying:
+  \begin{itemize}
+    \item $\U_i : \U_{i+1}$ for each $i$
+    \item If $A : \U_i$, then $A : \U_{i+1}$
+  \end{itemize}
+  Each type is a term of some universe.
+  Each universe is also a term of universes above it.
+\end{frame}
+
+\section{Logic in Type Theory}
+
+\begin{frame}{Embedding a Logic through the Construction Material}
+Type Theory repurposes the available bricks for building math to also encode logic!
+\begin{itemize}
+  \item Certain constructions and manipulations (type formers) of \emph{bricks} are available in the system.
+\end{itemize}
+Certain types, called \emph{mere propositions} may be used to capture logical propositions.\\
+One may intepret terms of these types as \emph{proofs} to the proposition. \\
+Hence, proofs of statements are themselves first-class mathematical objects.
+\end{frame}
+
+\begin{frame}{Type Formers}
+  %\setlength{\tabcolsep}{15pt}     % increase column spacing
+  \centering
+  \begin{tabular}{c c c c}
+  \hline
+  \textbf{Type Former} & \textbf{Assumes} & \textbf{Notation} & \textbf{Logical Analogue} \\
+  \hline
+  Function Type             & $A, B : \U$           & $A \to B$             & $A \implies B$ \\
+  Dependent Function Type   & $A : \U, B : A \to \U $ & $\Prod{x:A}{B(x)}$  & $\forall x \in A, B(x)$ \\
+  Dependent Pair Type       & $A : \U, B : A \to \U$  & $\Sum{x:A}{B(x)}$   & $\exists x \in A, B(x)$ \\
+  Product Type              & $A, B : \U$           & $A \times B$             & $A \land B$ \\
+  Coproduct Type            & $A, B : \U$           & $A + B$             & $A \lor B$ \\
+  Empty Type                & & $\0$                & $\mathtt{False}$ \\
+  Unit Type                 & & $\1$                & $\mathtt{True}$ \\
+  \hline
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Constructivity of Type Theory}
+  Type Theory is a constructivist foundational system!
+  \begin{itemize}
+    \item A function $f : A \to B$ needs to have an alogorithm to effectively output an element $f(a) : B$ when given input $a : A$.
+    \item $p \lor q$ requires either a proof of $p$ or a proof of $q$.
+    \item A proposition $\exists a : A, B(a)$ needs a an explicit $a : A$ such that $B(a)$ as a certificate.
+  \end{itemize}
+  Curry-Howard Correspondence b/w proofs and programs! \\
+  Type Theory requires proofs to be \emph{computationally meaningful}.
+\end{frame}
+
+\section{Mathematics in Type Theory}
+
+\subsection{Inductive Types}
+
+\begin{frame}{Inductive Types}
+  Natural numbers are the \emph{model mathematical object} in Type Theory!
+  
+  Remember Peano Axioms for $\N$,
+  \begin{itemize}
+    \item There is a distinguished element $0 \in \N$. 
+    \item There is an injective function $\mathtt{succ} : \N \to \N$, 
+    \item There is no $n \in \N$ such that $\mathtt{succ}(n) = 0$.
+    \item The \emph{induction principle}, i.e. to show a predicate $P$ on $\N$ holds for all $n \in \N$,
+      it suffices to prove $P(0)$ holds, and that for all $n \in \N, P(n) \implies P(\mathtt{succ} (n))$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Inductive Types}
+  There's a somewhat obvious-looking property one can prove:
+  \begin{theorem}[Classification of Natural Numbers]
+    Any $n \in \N$ is either $0$ or $\mathtt{succ}^m(0)$ for some $m \in \N$.
+  \end{theorem}
+  \begin{proof}
+    Let $P(n)$ be the statement ``$n = 0$ or there exists some $m \in \N$ such that $\mathtt{succ}^m(0) = n.$" \\
+    By the induction principle, it suffices to show $P(0)$ and $\forall n \in \N, P(n) \implies P(\mathtt{succ}(n))$.
+
+    $P(0)$ is clearly true, and for some $n \in \N$, suppose $n = \mathtt{succ}^m(0)$, then note $\mathtt{succ}(n) = \mathtt{succ}(\mathtt{succ}(m)(0)) = \mathtt{succ}^{\mathtt{succ}(m)}(0)$.
+  \end{proof}
+    %Let $P(n)$ be the statement ``$n = 0$ or there exists some $m \in \N$ such that $\mathtt{succ}(m) = n.$" \\
+    %By the induction principle, it suffices to show $P(0)$ and $\forall n \in \N, P(n) \implies P(\mathtt{succ}(n))$.
+
+    %$P(0)$ is clearly true, and for any $n \in \N$, there is $m := n \in \N$ such that $\mathtt{succ}(n) = \mathtt{succ}(m)$.
+    %This completes the proof.
+
+\end{frame}
+
+\begin{frame}{Inductive Types}
+  Here's a \emph{universal property} about $\N$ wrt maps out of $\N$. Given $E : \N \to \U$,
+    \[\Prod{n : \N}{E(n)} \simeq \left(E(0) \times \Prod{n : \N}{E(n) \to E(\mathtt{succ}(n))} \right)\]
+\end{frame}
+
+\begin{frame}{Inductive Types}
+  There is a general schema for constructing new types, requiring:
+  \begin{itemize}
+    \item \textbf{Formation rules} to introduce an inductive type into context. 
+    \item \textbf{Constructors/introduction rules} to introudce terms of the type.
+
+    \item \textbf{Elimination rules} to consume terms of a type. \\
+      (Usually by an \emph{induction} principle which defines dependent functions on the type)
+
+    \item \textbf{Computation rules} to specify action of elimination on the constructors.
+
+  \end{itemize}
+  These rules specify the behaviour of an inductive type by dictating the inference rules for the type 
+  in the foundational system.
+\end{frame}
+
+\subsection{Examples}
+
+\begin{frame}{Examples}
+  \textbf{Natural Numbers Type ($\N$)}
+  The natural numbers are an inductive type, given by the constructors 
+  \begin{itemize}
+    \item $\mathtt{zero} : \N$ 
+    \item $\mathtt{succ} : \N \to \N$
+  \end{itemize}
+  and the induction principle that for $E : \N \to \U$, to prove $\Prod{n : \N}{E(n)}$ is equivalent to proving
+  $E(0)$ and $\Prod{n : \N} E(n) \to E(\mathtt{succ}(n))$.
+  Formally, 
+  \[
+  \ind_\N : \Prod{E : \N \to \U} (E(0) \times \Prod{n : \N} (E(n) \to E(\mathtt{succ}(n)))) \to \Prod{n:\N}{E(n)}
+  \]
+\end{frame}
+
+\begin{frame}{Examples}
+  \textbf{The Empty Type ($\0$)}
+  The empty type $\0$ is given by no constructors.
+  One has the universal function for any $E : \0 \to \U$, one has the universal function $\Prod{z : \0}{E(z)}$.
+  Formally, 
+  \[
+  \ind_0 : \Prod{E : \0 \to \U}{\Prod{z : \0}{E(z)}}
+  \]
+\end{frame} 
+\begin{frame}{Examples}
+ \textbf{The Unit Type ($\1$)}
+  The unit type $\1$ is given by one constructor,
+  \begin{itemize}
+    \item $* : \1$.
+  \end{itemize}
+  and the induction principle that for $E : \1 \to \U$, to prove $\Prod{z : \1}{E(z)}$, it suffices to prove $E(*)$.
+  Formally, 
+  \[
+  \ind_1 : \Prod{E : \1 \to \U}{E(*) \to \Prod{z : \1}{E(z)}}
+  \]
+\end{frame}
+
+\begin{frame}{Examples}
+  \textbf{The Coproduct Type ($A + B$)}
+  The coproduct type of $A$ and $B$ is an inductive type, given by the constructors 
+  \begin{itemize}
+    \item $\mathtt{inl} : A \to A + B$ 
+    \item $\mathtt{inr} : B \to A + B$
+  \end{itemize}
+  and the induction principle that for $E : A + B \to \U$, to prove $\Prod{z : A + B}{E(z)}$ is equivalent to proving 
+  $E(\mathtt{inl} (a))$ for all $a : A$ and $E(\mathtt{inr} (b))$ for all $b : B$.
+  Formally, 
+  \[
+  \ind_{A+B} : \Prod{E : A+B \to \U}{\left( \Prod{a : A}{E(\mathtt{inl}(a))} \times \Prod{a : A}{E(\mathtt{inl}(a))} \to \Prod{z : A + B}{E(z)} \right) }
+  \]
+\end{frame}
+
+%\begin{frame}{The General Construction}
+%  \textbf{W-Types}
+%  In general, given $A : \U$, the type of \emph{constructors}, and type families $B : A \to \U$, we are allowed an inductive type
+%  \begin{itemize}
+%  \item $\mathtt{sup} : \left( \Prod{a : A}{B(a)} \to \W{a:A}{B} \right) \to \W{a:A}{B(a)} $
+%  \end{itemize}
+%  and the induction principle that for $E : \W{a:A}{B(a)} \to \U$, to prove $\Prod{z : A + B}{E(z)}$ is equivalent to proving 
+%  $E(\mathtt{inl} (a))$ for all $a : A$ and $E(\mathtt{inr} (b))$ for all $b : B$.
+%  Formally, 
+%  \[
+%  \ind_{\W{a:A}{B(a)}} : \Prod{E : A+B \to \U}{\left( \Prod{a : A}{E(\mathtt{inl}(a))} \times \Prod{a : A}{E(\mathtt{inl}(a))} \to \Prod{z : A + B}{E(z)} \right) }
+%  \]
+%\end{frame}
+%
+
+%\begin{frame}{The General Construction}
+%  \textbf{W-Types}
+%  In general, given $A : \U$, the type of \emph{constructors}, and type families $B : A \to \U$, we are allowed an inductive type
+%  \begin{itemize}
+%  \item $sup : \left( \Prod{a : A}{B(a)} \to \W{a:A}{B} \right) \to \W{a:A}{B(a)} $
+%  \end{itemize}
+%  and the induction principle that for $E : \W{a:A}{B(a)} \to \U$, to prove $\Prod{z : A + B}{E(z)}$ is equivalent to proving 
+%  $E(\mathtt{inl} (a))$ for all $a : A$ and $E(\mathtt{inr} (b))$ for all $b : B$.
+%  Formally, 
+%  \[
+%  \ind_{\W{a:A}{B(a)}} : \Prod{E : A+B \to \U}{\left( \Prod{a : A}{E(\mathtt{inl}(a))} \times \Prod{a : A}{E(\mathtt{inl}(a))} \to \Prod{z : A + B}{E(z)} \right) }
+%  \]
+%\end{frame}
+
+\begin{frame}{A Custom Inductive Type}
+  \textbf{Binary Trees}
+  Given a type $\mathtt{A} : \U$, the type of binary trees over $\mathtt{A}$ is $\mathtt{BinTree(A)}$ given by the constructors
+  \begin{itemize}
+  \item $\mathtt{leaf} : \mathtt{A} \to \mathtt{BinTree(A)}$
+  \item $\mathtt{node} : \mathtt{BinTree(A)} \to \mathtt{BinTree(A)} \to \mathtt{BinTree(A)}$
+  \end{itemize}
+  with the induction principle, that for $E : A \to \U$, to prove $\Prod{z : \mathtt{BinTree(A)}}{E(z)}$,
+  it suffices to prove $\Prod{a : A}{E(\mathtt{leaf(a)})}$ and $\Prod{t_1, t_2 : \mathtt{BinTree(A)}}{E(\mathtt{node}(t_1)(t_2))}.$
+\end{frame}
+
+\begin{frame}{Structural Constructions}
+  \textbf{Magma}
+  A \emph{magma} is a type $M$ with a binary operation $\cdot : M \times M \to M$. The type $Magma$ is given by
+  \[
+  Magma :\deq \Sum{M : \U}{M \times M \to M}
+  \]
+  \textbf{Semigroup}
+  A \emph{semigroup} is a magma with the operation being associative
+  \[
+  Semigroup :\deq \Sum{M : \U}{\Sum{\cdot : M \times M \to M}{\Prod{a, b, c : M}{(a \cdot b) \cdot c = a \cdot (b \cdot c)}}}
+  \]
+\end{frame}
+
+
+
+\subsection{Identity Types}
+
+\begin{frame}{Identity Types}
+  What does it mean for two mathematical objects to be equal? \\
+  In (intensive) type theory, there are two types of equalities:
+  \begin{itemize}
+    \item \textbf{Definitional Equality} Equality within the logical framework.
+    \item \textbf{Propositional Equality} A genuine equality of defined mathematical objects.
+  \end{itemize}
+  \pause
+  \textbf{Remark.}
+  An equality $p : A =_\U B$ in a universe gives a transport $p_* : E(A) \to E(B)$ for any $E : A \to \U$.
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+\end{frame}
+
+\begin{frame}{References}
+\printbibliography
+\nocite{*}
+\end{frame}
+
+\begin{frame}
+    \begin{center}
+        \Huge{Thank You!}
+    \end{center}
+\end{frame}
+\end{document}
