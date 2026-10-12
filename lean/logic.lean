@@ -115,3 +115,12 @@ from theorems in the math defined in the system.
 example (n : Nat) : n + 0 = n := by
   omega
 
+/-
+# Currying
+-/
+
+def curry (f : α × β → γ) : α → β → γ :=
+  fun a b => f (a, b)
+
+def uncurry (g : α → β → γ) : α × β → γ :=
+  fun z => g z.1 z.2

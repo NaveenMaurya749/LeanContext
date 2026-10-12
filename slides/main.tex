@@ -8,6 +8,8 @@
 \usepackage{biblatex}
 \usepackage{xspace}
 \usepackage{tikz-cd}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \newcommand{\U}{\mathcal{U}}
 \newcommand{\deq}{\equiv}
@@ -20,6 +22,7 @@
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\Id}{\mathsf{Id}}
+\newcommand{\Hom}{\mathsf{Hom}}
 \newcommand{\ind}{\mathbf{ind}}
 \newcommand{\refl}{\mathsf{refl}}
 \newcommand{\Sph}{\mathbb{S}}
@@ -52,16 +55,16 @@
 
 \section{Foudational Systems} 
  
-\subsection{What's wrong with Set Theory?}
+\subsection{What's lacking in Set Theory?}
 
 \begin{frame}{What is a Foundational System?}
-  Set Theory is not a ``complete" foundation mathematics.
+  Set Theory is not an  `optimal' foundation for mathematics. 
   \begin{itemize}
+    \item Set theory depends on first-order logic to state it, and first-order logic usually requires set theory to build.
     \item Set theory has a problem about interpreting \emph{types} of mathematical objects.\\
     For example, $\{\{\}, \{\{\}\}\}$ could mean either $2$ or the ordered pair $(0,0)$.
-    \item Set theory doesn't center the type of organization mathematicians care about. \\
-    For example, definitions of a \emph{group} are closely related
-    but that is not reflected in Set Theory.
+    \item Set theory is uniform rather than structural. 
+    \item Many abuses of language, making it hard to use on computers. 
   \end{itemize}
   %Other problems:
   %\begin{itemize}
@@ -74,22 +77,68 @@
 \subsection{What is a Foundational System?}
 
 \begin{frame}{What is a Foundational System?}
-    A foundational system is an assumed framework to build on top of. \\
-    \[
-    \begin{tikzcd}
-    ZFC 
-    \end{tikzcd}
-    \]
+
+\begin{center}
+\begin{tikzpicture}[
+  box/.style={
+    draw,
+    rounded corners,
+    align=center,
+    text width=4.2cm,
+    minimum height=1.1cm
+  },
+  foundation/.style={
+    draw,
+    rounded corners,
+    thick,
+    minimum width=14cm,
+    minimum height=4.2cm
+  },
+  arrow/.style={
+    ->,
+    thick,
+    shorten <= 5pt,
+    shorten >= 5pt
+  }
+]
+
+% Outer foundational box
+\node[foundation] (base) at (4,0) {};
+
+% Heading at the bottom
+\node[font=\large\bfseries] at (4,-1.55)
+  {Set-Theoretic Foundation};
+
+% Interdependent boxes, spaced further apart
+\node[box] (zfc) at (0.8,0.35) {
+  \textbf{Set Theory (ZFC)}
+};
+
+\node[box] (fol) at (7.2,0.35) {
+  \textbf{First-Order Logic (FOL)}
+};
+
+% Opposing arrows
+\draw[arrow] ([yshift=3pt]fol.west) --
+  node[above, font=\small, midway] {}
+  ([yshift=3pt]zfc.east);
+
+\draw[arrow] ([yshift=-3pt]zfc.east) --
+  node[below, font=\small, midway] {}
+  ([yshift=-3pt]fol.west);
+
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 \begin{frame}{What is a Foundational System?}
   Concretely, a Foundation System consists of
   \begin{itemize}
-    \item A \textbf{Logical/Deductive system} specifying \emph{rules of inference} that dictate which inferences are
-      allowed from existing context.
+    \item A \textbf{Logical/Deductive system} specifying the \emph{langauage of the system} and what counts as \emph{valid reasoning}. 
     \item An \textbf{Axiomatic system}, a schematic collection of \emph{axioms}, statements in the language of the deductive system,
       taken as true by assumption.
   \end{itemize}
+  Type Theory is both of these together!
   %Usually in set-theoretic foundations, the former is \emph{first-order logic} and the latter is \emph{ZF or ZFC Set Theory}.
   %Type Theory combines these two layers into the same framework.
 \end{frame}
@@ -101,7 +150,16 @@
 \begin{frame}{Types, Terms and Universes}
   \emph{Types} and \emph{Terms} are primitive objects.
   \begin{itemize}
-    \item Every term $a$ is of some (unique) type, say $\alpha$. We denote this $a : \alpha$. 
+    \item Every term has a unique type.
+    \item Say $a$ has type $A$. We also $a$ is an \emph{instance} of $A$, and $A$ is inhabited by $a$.
+    \item Certain terms may be \emph{judgementally equal} to other terms of the same type, denoted $a \deq b$.
+    \item Underlying \emph{inference rules} allow transitioning from a context to another by making new \emph{judgements}.
+    \item Judgements are of two forms:
+    \begin{itemize}
+      \item $a : A$, called \emph{typing judgements},
+      \item $a \deq b : A$, called \emph{equality judgements}.
+    \end{itemize}
+    \item Every type $A$ is a term of some \emph{universe } $\U$.
   \end{itemize}
 \end{frame}
 
@@ -150,15 +208,30 @@ Hence, proofs of statements are themselves first-class mathematical objects.
 \end{frame}
 
 \begin{frame}{Constructivity of Type Theory}
-  Type Theory is a constructivist foundational system!
+  Type Theory is a constructive foundational system!
   \begin{itemize}
     \item A function $f : A \to B$ needs to have an alogorithm to effectively output an element $f(a) : B$ when given input $a : A$.
     \item $p \lor q$ requires either a proof of $p$ or a proof of $q$.
-    \item A proposition $\exists a : A, B(a)$ needs a an explicit $a : A$ such that $B(a)$ as a certificate.
+    \item A proposition $\exists a : A, B(a)$ needs a an explicit $a : A$ such that $B(a)$ holds as a certificate.
   \end{itemize}
   Curry-Howard Correspondence b/w proofs and programs! \\
   Type Theory requires proofs to be \emph{computationally meaningful}.
 \end{frame}
+
+\begin{frame}{A Note on ``Currying"}
+  Function of multiple variables are often written as function into function types as follows:
+  \begin{align*}
+    \Hom(A \times B, C) &\cong \Hom(A, B \to C) \\
+    f &\mapsto \widetilde f \\
+    f(a,b) &\mapsto f(a)(b)
+  \end{align*}
+  And convention write without brackets if on the right: 
+  \[
+    A \to B \to C \deq A \to (B \to C)
+  \]
+  but not $(A \to B) \to C$.
+\end{frame}
+
 
 \section{Mathematics in Type Theory}
 
@@ -196,10 +269,10 @@ Hence, proofs of statements are themselves first-class mathematical objects.
 
 \end{frame}
 
-\begin{frame}{Inductive Types}
-  Here's a \emph{universal property} about $\N$ wrt maps out of $\N$. Given $E : \N \to \U$,
-    \[\Prod{n : \N}{E(n)} \simeq \left(E(0) \times \Prod{n : \N}{E(n) \to E(\mathtt{succ}(n))} \right)\]
-\end{frame}
+%\begin{frame}{Inductive Types}
+%  Here's a \emph{universal property} about $\N$ wrt maps out of $\N$. Given $E : \N \to \U$,
+%    \[\Prod{n : \N}{E(n)} \simeq \left(E(0) \times \Prod{n : \N}{E(n) \to E(\mathtt{succ}(n))} \right)\]
+%\end{frame}
 
 \begin{frame}{Inductive Types}
   There is a general schema for constructing new types, requiring:
@@ -230,7 +303,7 @@ Hence, proofs of statements are themselves first-class mathematical objects.
   $E(0)$ and $\Prod{n : \N} E(n) \to E(\mathtt{succ}(n))$.
   Formally, 
   \[
-  \ind_\N : \Prod{E : \N \to \U} (E(0) \times \Prod{n : \N} (E(n) \to E(\mathtt{succ}(n)))) \to \Prod{n:\N}{E(n)}
+  \ind_\N : \Prod{E : \N \to \U}{\left( E(0) \times \Prod{n : \N} (E(n) \to E(\mathtt{succ}(n))) \right) \to \Prod{n:\N}{E(n)}}
   \]
 \end{frame}
 
@@ -313,14 +386,14 @@ Hence, proofs of statements are themselves first-class mathematical objects.
 
 \begin{frame}{Structural Constructions}
   \textbf{Magma}
-  A \emph{magma} is a type $M$ with a binary operation $\cdot : M \times M \to M$. The type $Magma$ is given by
+  A \emph{magma} is a type $M$ with a binary operation $\cdot : M \to M \to M$. The type $Magma$ is given by
   \[
-  Magma :\deq \Sum{M : \U}{M \times M \to M}
+  Magma :\deq \Sum{M : \U}{\left( M \to M \to M \right)}
   \]
   \textbf{Semigroup}
   A \emph{semigroup} is a magma with the operation being associative
   \[
-  Semigroup :\deq \Sum{M : \U}{\Sum{\cdot : M \times M \to M}{\Prod{a, b, c : M}{(a \cdot b) \cdot c = a \cdot (b \cdot c)}}}
+  Semigroup :\deq \Sum{M : \U}{\Sum{\cdot : M \to M \to M}{\Prod{a, b, c : M}{(a \cdot b) \cdot c = a \cdot (b \cdot c)}}}
   \]
 \end{frame}
 
@@ -328,24 +401,41 @@ Hence, proofs of statements are themselves first-class mathematical objects.
 
 \subsection{Identity Types}
 
-\begin{frame}{Identity Types}
+\begin{frame}{Equality}
   What does it mean for two mathematical objects to be equal? \\
-  In (intensive) type theory, there are two types of equalities:
+  In type theory, there are two types of equalities (say between terms $a$ and $b$):
   \begin{itemize}
-    \item \textbf{Definitional Equality} Equality within the logical framework.
-    \item \textbf{Propositional Equality} A genuine equality of defined mathematical objects.
+    \item \textbf{Judgemental Equality} ($a \deq b$) Equality of terms within the foundational system.
+    \item \textbf{Propositional Equality} ($a = b$) Equality on the level of mathematical objects. 
   \end{itemize}
-  \pause
-  \textbf{Remark.}
-  An equality $p : A =_\U B$ in a universe gives a transport $p_* : E(A) \to E(B)$ for any $E : A \to \U$.
 \end{frame}
+
+\begin{frame}{Identity Types}
+  \emph{Propositional equality} in Type Theory is handled by Inductive Types as well!
+  Suppose $A : \U$.
+  \begin{itemize}
+    \item Then for any $x,y : A$, we have a type $\Id_A(x,y) \deq (x =_A y) : \U$.
+    \item For any $a : A$, there is the reflexive $\refl_a : a =_A a$.
+    \item There is a \emph{path induction} principle.
+  \end{itemize}
+  Note since $\Id_A(x,y)$ is a type, we can have an identity type on it, $\Id_{\Id_A(x,y)}(p,q)$ for $p, q : x =_A y$,
+  then $\Id_{\Id_{\Id_A(x,y)}(p,q)}(h_1, h_2) \ldots $ ad infinitum.
+\end{frame}
+
 
 \section{Conclusion}
 
-\begin{frame}{Conclusion}
+\begin{frame}{Summary}
+\begin{itemize}
+  \item Type Theory is a versatile, constructive foundational system.  
+  \item Logic in Type Theory is obtained by interpreting types as propositions and their terms as proofs. 
+  \item Inductive Types allow one to build mathematics in Type Theory with native support for structural architecture and computational convenience.
+  \item An Inductive Type is described by a list of constructors, which \emph{freely generate} the type, and are accompanied by an \emph{induction principle}.
+  \item Equality of mathematical objects is described by \emph{Identity Types}.
+\end{itemize}
 \end{frame}
 
-\begin{frame}{References}
+\begin{frame}{References \& Further Reading}
 \printbibliography
 \nocite{*}
 \end{frame}
